@@ -2,12 +2,15 @@
 import { useState, useEffect } from "react";
 import PopularMoviesCarousel from "../components/PopularMoviesCarousel";
 import MovieCard from "../components/MovieCard";
+import SearchInput from "../components/SearchInput";
 
 export default function Home() {
   const [popularMovies, setPopularMovies] = useState([]);
   const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
   const [topRatedMovies, setTopRatedMovies] = useState([]);
   const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -75,6 +78,38 @@ export default function Home() {
     fetchMovies();
   }, [TMDB_API_KEY]);
 
+  const handleSearch = async (query) => {
+    setLoading(true);
+    setError(null);
+    setSearchQuery(query);
+    setSearchResults([]); // Clear previous search results
+
+    try {
+      if (!TMDB_API_KEY) {
+        throw new Error(
+          "TMDB API Key is not set. Please set NEXT_PUBLIC_TMDB_API_KEY in your .env.local file.",
+        );
+      }
+
+      const searchEndpoint = `${BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`;
+      const response = await fetch(searchEndpoint);
+
+      if (!response.ok) {
+        throw new Error(
+          `HTTP error! status: ${response.status} for search results`,
+        );
+      }
+
+      const data = await response.json();
+      setSearchResults(data.results);
+    } catch (err) {
+      console.error("Failed to fetch search results:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
@@ -111,10 +146,20 @@ export default function Home() {
       </header>
 
       <main className="pb-8">
-        <PopularMoviesCarousel movies={popularMovies} />
-        <MovieCategory title="Now Playing" movies={nowPlayingMovies} />
-        <MovieCategory title="Top Rated" movies={topRatedMovies} />
-        <MovieCategory title="Upcoming Movies" movies={upcomingMovies} />
+        <SearchInput onSearch={handleSearch} />
+        {searchQuery ? (
+          <MovieCategory
+            title={`Search Results for "${searchQuery}"`}
+            movies={searchResults}
+          />
+        ) : (
+          <>
+            <PopularMoviesCarousel movies={popularMovies} />
+            <MovieCategory title="Now Playing" movies={nowPlayingMovies} />
+            <MovieCategory title="Top Rated" movies={topRatedMovies} />
+            <MovieCategory title="Upcoming Movies" movies={upcomingMovies} />
+          </>
+        )}
       </main>
 
       <footer className="bg-gray-800 py-4 text-center text-gray-400">
