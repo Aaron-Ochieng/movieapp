@@ -79,10 +79,16 @@ export default function Home() {
   }, [TMDB_API_KEY]);
 
   const handleSearch = async (query) => {
-    setLoading(true);
+    setSearchQuery(query); // Always set the query state
+
+    if (!query.trim()) {
+      setSearchResults([]); // Clear search results
+      setLoading(false); // Stop loading, as no API call is needed
+      return; // Exit the function
+    }
+
+    setLoading(true); // Only set loading true if we are performing a search
     setError(null);
-    setSearchQuery(query);
-    setSearchResults([]); // Clear previous search results
 
     try {
       if (!TMDB_API_KEY) {
