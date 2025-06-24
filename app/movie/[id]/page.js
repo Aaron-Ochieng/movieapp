@@ -13,7 +13,9 @@ export async function generateMetadata({ params }) {
   }
 
   try {
-    const movieRes = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}`);
+    const movieRes = await fetch(
+      `${BASE_URL}/movie/${movieId}?api_key=${TMDB_API_KEY}`,
+    );
     const movieData = await movieRes.json();
 
     if (!movieRes.ok || movieData.status_code === 34) {
@@ -65,7 +67,9 @@ export default async function MovieDetailsPage({ params }) {
       );
     }
     if (!creditsRes.ok) {
-      console.warn(`Could not fetch credits for movie ${id}: status ${creditsRes.status}`);
+      console.warn(
+        `Could not fetch credits for movie ${id}: status ${creditsRes.status}`,
+      );
       // Do not throw, as credits might not be critical enough to fail the whole page
     }
 
@@ -85,7 +89,8 @@ export default async function MovieDetailsPage({ params }) {
     );
   }
 
-  if (!movie || movie.status_code === 34) { // Handle "resource not found" explicitly
+  if (!movie || movie.status_code === 34) {
+    // Handle "resource not found" explicitly
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
         Movie not found. Please check the movie ID.
@@ -102,6 +107,25 @@ export default async function MovieDetailsPage({ params }) {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      <div className="container mx-auto px-4 py-4">
+        <button className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center transition-colors duration-200">
+          <svg
+            className="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path>
+          </svg>
+          Back
+        </button>
+      </div>
       {backdropUrl && (
         <div className="relative w-full h-96 lg:h-[500px] overflow-hidden">
           <Image
@@ -171,7 +195,8 @@ export default async function MovieDetailsPage({ params }) {
                       className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full text-sm"
                     >
                       {person.name}{" "}
-                      {person.character && `(${person.character.split("/")[0].trim()})`}
+                      {person.character &&
+                        `(${person.character.split("/")[0].trim()})`}
                     </span>
                   ))}
                 </div>
